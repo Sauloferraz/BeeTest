@@ -13,20 +13,29 @@ class EntregaController extends Controller
 {
     public function index(Request $request)
     {
-        $query = $request->user()->entregas();
+        $user = $request->user();
+        $status = $request->input('status', 'todos');
+        $page = $request->input('page', 1);
 
-        if ($request->filled('status')) {
-            $query->where('status', $request->status);
-        }
+        $entregas = Cache::tags(["entregas.user.{$user->id}"])
+            ->remember("entregas.status.{$status}.page.{$page}", 300, function () use ($request, $user) {
+                $query = $user->entregas();
 
-        return EntregaResource::collection($query->latest('id')->paginate(10));
+                if ($request->filled('status')) {
+                    $query->where('status', $request->status);
+                }
+
+                return $query->latest('id')->paginate(10);
+            });
+
+        return EntregaResource::collection($entregas);
     }
 
     public function store(StoreEntregaRequest $request)
     {
         $entrega = $request->user()->entregas()->create($request->validated());
 
-        Cache::forget('entregas.todas');
+        Cache::tags(["entregas.user.{$request->user()->id}"])->flush();
 
         return new EntregaResource($entrega);
     }
@@ -44,7 +53,7 @@ class EntregaController extends Controller
 
         $entrega->update($request->validated());
 
-        Cache::forget('entregas.todas');
+        Cache::tags(["entregas.user.{$request->user()->id}"])->flush();
 
         return new EntregaResource($entrega);
     }
@@ -55,7 +64,7 @@ class EntregaController extends Controller
 
         $entrega->delete();
 
-        Cache::forget('entregas.todas');
+        Cache::tags(["entregas.user.{$request->user()->id}"])->flush();
 
         return response()->noContent();
     }

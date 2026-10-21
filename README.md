@@ -6,8 +6,12 @@ API REST em Laravel para gerenciamento de entregas, com autenticação por token
 - PHP 8.4 / Laravel
 - SQLite (configurável para MySQL via `.env`)
 - Laravel Sanctum (autenticação)
-- Cache com `Cache::remember` na listagem de entregas
+- Cache com Redis (tags por usuário) na listagem de entregas
 - Testes automatizados com `php artisan test`
+
+## Requisitos
+- PHP 8.4 e Composer
+- Redis rodando em `127.0.0.1:6379` (no Windows, por exemplo, o Memurai)
 
 ## Como rodar
 O projeto Laravel está na pasta `api-entregas`.

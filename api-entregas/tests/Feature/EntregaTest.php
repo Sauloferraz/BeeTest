@@ -110,4 +110,20 @@ class EntregaTest extends TestCase
             ->assertJsonPath('data.descricao', 'Pizza grande')
             ->assertJsonMissingPath('data.user_id');
     }
+
+    public function test_cache_da_listagem_e_limpo_ao_criar_entrega(): void
+    {
+        Sanctum::actingAs(User::factory()->create());
+
+        $this->getJson('/api/entregas')->assertJsonCount(0, 'data');
+
+        $this->postJson('/api/entregas', [
+            'descricao' => 'Pizza grande',
+            'endereco_coleta' => 'Rua A, 10',
+            'endereco_entrega' => 'Rua B, 20',
+            'valor' => 12.50,
+        ])->assertStatus(201);
+
+        $this->getJson('/api/entregas')->assertJsonCount(1, 'data');
+    }
 }
