@@ -13,7 +13,7 @@ Content-Type: application/json
 ### 2. Listar entregas (precisa de token)
 GET http://localhost:8000/api/entregas
 Accept: application/json
-Authorization: COLE_TOKEN_AQUI
+Authorization: COLE_SEU_TOKEN_AQUI
 
 ### Login
 POST http://localhost:8000/api/login
@@ -29,7 +29,7 @@ Content-Type: application/json
 POST http://localhost:8000/api/entregas
 Accept: application/json
 Content-Type: application/json
-Authorization: COLE_TOKEN_AQUI
+Authorization: COLE_SEU_TOKEN_AQUI
 
 {
   "descricao": "Pizza",
@@ -41,14 +41,14 @@ Authorization: COLE_TOKEN_AQUI
 ### Listar pendentes
 GET http://localhost:8000/api/entregas?status=pendente
 Accept: application/json
-Authorization: COLE_TOKEN_AQUI
+Authorization: COLE_SEU_TOKEN_AQUI
 
 ### Ver minha entrega (esperado 200)
 GET http://localhost:8000/api/entregas/22
 Accept: application/json
-Authorization: COLE_TOKEN_AQUI
+Authorization: COLE_SEU_TOKEN_AQUI
 
 ### Ver entrega sem dono (esperado 403)
 GET http://localhost:8000/api/entregas/2
 Accept: application/json
-Authorization: COLE_TOKEN_AQUI
+Authorization: COLE_SEU_TOKEN_AQUI
