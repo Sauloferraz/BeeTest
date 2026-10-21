@@ -1,0 +1,39 @@
+﻿### 1. Registrar
+POST http://localhost:8000/api/register
+Accept: application/json
+Content-Type: application/json
+
+{
+  "name": "Saulo",
+  "email": "saulo@teste.com",
+  "password": "12345678",
+  "password_confirmation": "12345678"
+}
+
+### 2. Listar entregas (precisa de token)
+GET http://localhost:8000/api/entregas
+Accept: application/json
+Authorization: COLE_TOKEN_AQUI
+
+### Login
+POST http://localhost:8000/api/login
+Accept: application/json
+Content-Type: application/json
+
+{
+  "email": "saulo@teste.com",
+  "password": "12345678"
+}
+
+### Criar entrega
+POST http://localhost:8000/api/entregas
+Accept: application/json
+Content-Type: application/json
+Authorization: COLE_TOKEN_AQUI
+
+{
+  "descricao": "Hambúrguer",
+  "endereco_coleta": "Rua C, 30",
+  "endereco_entrega": "Rua D, 40",
+  "valor": 25.90
+}
