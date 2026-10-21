@@ -3,8 +3,11 @@
 namespace App\Http\Controllers;
 
 use App\Models\Entrega;
+use App\Http\Resources\EntregaResource;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
+use App\Http\Requests\StoreEntregaRequest;
+use App\Http\Requests\UpdateEntregaRequest;
 
 class EntregaController extends Controller
 {
@@ -16,49 +19,34 @@ class EntregaController extends Controller
             $query->where('status', $request->status);
         }
 
-        return $query->latest('id')->paginate(10);
+        return EntregaResource::collection($query->latest('id')->paginate(10));
     }
 
-    public function store(Request $request)
+    public function store(StoreEntregaRequest $request)
     {
-        $dados = $request->validate([
-            'descricao' => 'required|string|max:255',
-            'endereco_coleta' => 'required|string|max:255',
-            'endereco_entrega' => 'required|string|max:255',
-            'valor' => 'required|numeric|min:0',
-        ]);
-
-        $entrega = $request->user()->entregas()->create($dados);
+        $entrega = $request->user()->entregas()->create($request->validated());
 
         Cache::forget('entregas.todas');
 
-        return response()->json($entrega, 201);
+        return new EntregaResource($entrega);
     }
 
     public function show(Request $request, Entrega $entrega)
     {
         abort_if($entrega->user_id !== $request->user()->id, 403);
 
-        return $entrega;
+        return new EntregaResource($entrega);
     }
 
-    public function update(Request $request, Entrega $entrega)
+    public function update(UpdateEntregaRequest $request, Entrega $entrega)
     {
         abort_if($entrega->user_id !== $request->user()->id, 403);
 
-        $dados = $request->validate([
-            'descricao' => 'sometimes|string|max:255',
-            'endereco_coleta' => 'sometimes|string|max:255',
-            'endereco_entrega' => 'sometimes|string|max:255',
-            'valor' => 'sometimes|numeric|min:0',
-            'status' => 'sometimes|in:pendente,em_andamento,entregue,cancelada',
-        ]);
-
-        $entrega->update($dados);
+        $entrega->update($request->validated());
 
         Cache::forget('entregas.todas');
 
-        return $entrega;
+        return new EntregaResource($entrega);
     }
 
     public function destroy(Request $request, Entrega $entrega)

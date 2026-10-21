@@ -92,4 +92,22 @@ class EntregaTest extends TestCase
         $this->putJson("/api/entregas/{$entrega->id}", ['status' => 'entregue'])->assertStatus(403);
         $this->deleteJson("/api/entregas/{$entrega->id}")->assertStatus(403);
     }
+
+    public function test_resposta_nao_expoe_user_id(): void
+    {
+        $user = User::factory()->create();
+        Sanctum::actingAs($user);
+
+        $entrega = $user->entregas()->create([
+            'descricao' => 'Pizza grande',
+            'endereco_coleta' => 'Rua A, 10',
+            'endereco_entrega' => 'Rua B, 20',
+            'valor' => 12.50,
+        ]);
+
+        $this->getJson("/api/entregas/{$entrega->id}")
+            ->assertStatus(200)
+            ->assertJsonPath('data.descricao', 'Pizza grande')
+            ->assertJsonMissingPath('data.user_id');
+    }
 }
