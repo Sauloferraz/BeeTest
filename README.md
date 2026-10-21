@@ -6,10 +6,14 @@ API REST em Laravel para gerenciamento de entregas, com autenticação por token
 - PHP 8.4 / Laravel
 - SQLite (configurável para MySQL via `.env`)
 - Laravel Sanctum (autenticação)
+- Cache com `Cache::remember` na listagem de entregas
 - Testes automatizados com `php artisan test`
 
 ## Como rodar
+O projeto Laravel está na pasta `api-entregas`.
+
 ```bash
+cd api-entregas
 composer install
 cp .env.example .env
 php artisan key:generate
@@ -31,7 +35,10 @@ php artisan serve
 
 As rotas protegidas exigem o header `Authorization: Bearer {token}`.
 
+O arquivo `requests.http`, na raiz do repositório, tem exemplos de requisições para testar a API no PhpStorm.
+
 ## Testes
 ```bash
+cd api-entregas
 php artisan test
 ```
