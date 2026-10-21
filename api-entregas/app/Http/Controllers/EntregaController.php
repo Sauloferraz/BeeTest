@@ -8,11 +8,15 @@ use Illuminate\Support\Facades\Cache;
 
 class EntregaController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        return Cache::remember('entregas.todas', 60, function () {
-            return Entrega::all();
-        });
+        $query = $request->user()->entregas();
+
+        if ($request->filled('status')) {
+            $query->where('status', $request->status);
+        }
+
+        return $query->latest('id')->paginate(10);
     }
 
     public function store(Request $request)
@@ -24,19 +28,24 @@ class EntregaController extends Controller
             'valor' => 'required|numeric|min:0',
         ]);
 
-        $entrega = Entrega::create($dados);
+        $entrega = $request->user()->entregas()->create($dados);
 
         Cache::forget('entregas.todas');
+
         return response()->json($entrega, 201);
     }
 
-    public function show(Entrega $entrega)
+    public function show(Request $request, Entrega $entrega)
     {
+        abort_if($entrega->user_id !== $request->user()->id, 403);
+
         return $entrega;
     }
 
     public function update(Request $request, Entrega $entrega)
     {
+        abort_if($entrega->user_id !== $request->user()->id, 403);
+
         $dados = $request->validate([
             'descricao' => 'sometimes|string|max:255',
             'endereco_coleta' => 'sometimes|string|max:255',
@@ -48,14 +57,18 @@ class EntregaController extends Controller
         $entrega->update($dados);
 
         Cache::forget('entregas.todas');
+
         return $entrega;
     }
 
-    public function destroy(Entrega $entrega)
+    public function destroy(Request $request, Entrega $entrega)
     {
+        abort_if($entrega->user_id !== $request->user()->id, 403);
+
         $entrega->delete();
 
         Cache::forget('entregas.todas');
+
         return response()->noContent();
     }
 }

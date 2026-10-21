@@ -37,3 +37,18 @@ Authorization: COLE_TOKEN_AQUI
   "endereco_entrega": "Rua D, 40",
   "valor": 25.90
 }
+
+### Listar pendentes
+GET http://localhost:8000/api/entregas?status=pendente
+Accept: application/json
+Authorization: COLE_TOKEN_AQUI
+
+### Ver minha entrega (esperado 200)
+GET http://localhost:8000/api/entregas/22
+Accept: application/json
+Authorization: COLE_TOKEN_AQUI
+
+### Ver entrega sem dono (esperado 403)
+GET http://localhost:8000/api/entregas/2
+Accept: application/json
+Authorization: COLE_TOKEN_AQUI

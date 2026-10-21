@@ -19,9 +19,10 @@ class EntregaTest extends TestCase
 
     public function test_usuario_autenticado_lista_entregas(): void
     {
-        Sanctum::actingAs(User::factory()->create());
+        $user = User::factory()->create();
+        Sanctum::actingAs($user);
 
-        Entrega::create([
+        $user->entregas()->create([
             'descricao' => 'Pizza grande',
             'endereco_coleta' => 'Rua A, 10',
             'endereco_entrega' => 'Rua B, 20',
@@ -30,7 +31,7 @@ class EntregaTest extends TestCase
 
         $this->getJson('/api/entregas')
             ->assertStatus(200)
-            ->assertJsonCount(1);
+            ->assertJsonCount(1, 'data');
     }
 
     public function test_criar_entrega(): void
@@ -56,5 +57,39 @@ class EntregaTest extends TestCase
         $this->postJson('/api/entregas', ['valor' => 10])
             ->assertStatus(422)
             ->assertJsonValidationErrors(['descricao']);
+    }
+
+    public function test_usuario_ve_apenas_suas_entregas(): void
+    {
+        $outro = User::factory()->create();
+        $outro->entregas()->create([
+            'descricao' => 'Entrega de outro usuário',
+            'endereco_coleta' => 'Rua X',
+            'endereco_entrega' => 'Rua Y',
+            'valor' => 20,
+        ]);
+
+        Sanctum::actingAs(User::factory()->create());
+
+        $this->getJson('/api/entregas')
+            ->assertStatus(200)
+            ->assertJsonCount(0, 'data');
+    }
+
+    public function test_usuario_nao_acessa_entrega_de_outro(): void
+    {
+        $dono = User::factory()->create();
+        $entrega = $dono->entregas()->create([
+            'descricao' => 'Entrega privada',
+            'endereco_coleta' => 'Rua X',
+            'endereco_entrega' => 'Rua Y',
+            'valor' => 20,
+        ]);
+
+        Sanctum::actingAs(User::factory()->create());
+
+        $this->getJson("/api/entregas/{$entrega->id}")->assertStatus(403);
+        $this->putJson("/api/entregas/{$entrega->id}", ['status' => 'entregue'])->assertStatus(403);
+        $this->deleteJson("/api/entregas/{$entrega->id}")->assertStatus(403);
     }
 }
